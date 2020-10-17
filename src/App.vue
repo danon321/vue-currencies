@@ -1,5 +1,13 @@
 <template>
   <div id="app">
+    <div class="favourite-currency-wrapper">
+      <div class="favourite-currency" v-for="favCurrency in apiRequests" :key="favCurrency.code">
+        <label>{{favCurrency.code}}</label>
+        <input type="checkbox"
+        v-model="selectedCurrency"
+        v-bind:value="favCurrency.code">
+      </div>
+    </div>
     <section v-if="errored">
       <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
     </section>
@@ -9,7 +17,7 @@
 
       <div
         v-else
-        v-for="currency in info"
+        v-for="currency in selectedItems"
         :key="currency.code"
       >
         {{currency.currency}}
@@ -26,22 +34,33 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      info: null,
       loading: true,
-      errored: false
+      errored: false,
+      apiRequests:[],
+      selectedCurrency: []
     }
   },
   filters: {
   currencydecimal (value) {
-    return value.toFixed(2)
+    return value.toFixed(3)
     }
   },
-
+  computed: {
+      selectedItems: function() {
+        if(this.selectedCurrency.length != 0) {
+          return this.apiRequests.filter(function (item) {
+            return this.selectedCurrency.includes(item.code);
+          }, this);
+        }else{
+          return this.apiRequests;
+        }
+      },
+    },
   mounted() {
     axios
-      .get('http://api.nbp.pl/api/exchangerates/tables/A/today/')
+      .get('http://api.nbp.pl/api/exchangerates/tables/A/')
       .then(response => {
-        this.info = response.data[0].rates
+        this.apiRequests = response.data[0].rates
       })
       .catch(error => {
         console.log(error)
@@ -51,6 +70,13 @@ export default {
   }
 }
 </script>
-
 <style>
+#app{
+  width:100%;
+  text-align: center;
+}
+.favourite-currency-wrapper{
+  position: fixed;
+  right: 0px;
+}
 </style>
