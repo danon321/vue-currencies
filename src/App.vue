@@ -82,7 +82,7 @@ export default {
   },
   mounted() {
     axios
-      .get('http://api.nbp.pl/api/exchangerates/tables/A/')
+      .get('https://api.nbp.pl/api/exchangerates/tables/A/')
       .then(response => {
         this.apiRequests = response.data[0].rates
       })
